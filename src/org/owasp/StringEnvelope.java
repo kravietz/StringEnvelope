@@ -61,11 +61,8 @@ public class StringEnvelope {
          byte[] rawHmac = mac.doFinal(rawEncrypted);
 
          String strIv = Base64.encode(ivSpec.getIV());
-         System.out.println("strIv=" + strIv + " " + ivSpec.getIV().length);
          String strMac = Base64.encode(rawHmac);
-         System.out.println("strMac=" + strMac)    ;
          String strEncrypted = Base64.encode(rawEncrypted);
-         System.out.println("strEncrypted=" + strEncrypted)    ;
 
          return strIv + "-" + strMac + "-" + strEncrypted;
      }
@@ -80,10 +77,6 @@ public class StringEnvelope {
         String strIv = parts[0];
         String strMac = parts[1];
         String strEncrypted = parts[2];
-
-        System.out.println("strIv=" + strIv);
-        System.out.println("strMac=" + strMac);
-        System.out.println("strEncrypted=" + strEncrypted);
 
         byte[] rawIv = Base64.decode(strIv);
         byte[] rawEncrypted = Base64.decode(strEncrypted);
