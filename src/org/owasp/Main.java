@@ -11,7 +11,7 @@ public class Main {
 
     public static void main(String[] args)
             throws IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
-	StringEnvelope env = new StringEnvelope((long) 123);
+	StringEnvelope env = new StringEnvelope();
 
     String wrapped = env.wrap("ss", "aaa");
     System.out.println(wrapped);

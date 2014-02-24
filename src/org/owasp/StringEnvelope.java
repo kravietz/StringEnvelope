@@ -5,11 +5,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.util.Arrays;
 
 import static java.lang.Math.min;
@@ -20,12 +16,7 @@ public class StringEnvelope {
     static final String HMAC = "HmacSHA256";
     static final String CIPHER = "AES";
     static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
-
-    public static Long sequence;
-
-    public StringEnvelope(long sequence) {
-        this.sequence = sequence;
-    }
+    static SecureRandom secureRandom = new SecureRandom();
 
     private SecretKeySpec deriveKey(String purpose, String key)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
@@ -44,21 +35,9 @@ public class StringEnvelope {
 
     private byte[] deriveIv()
             throws NoSuchPaddingException, NoSuchAlgorithmException {
-        ByteBuffer b = ByteBuffer.allocate(Cipher.getInstance(ENCRYPTION).getBlockSize());
-        b.putLong(sequence)  ;
-        sequence += 1;
-        return b.array();
-    }
-
-    private void checkSequence(byte[] iv)
-            throws NoSuchPaddingException, NoSuchAlgorithmException {
-
-        ByteBuffer b = ByteBuffer.allocate(Cipher.getInstance(ENCRYPTION).getBlockSize());
-        b.put(iv);
-        System.out.println(b.toString());
-
-        if (b.getLong(0) < sequence)
-              throw new IllegalArgumentException("Invalid sequence " + b.getLong());
+        byte[] iv = new byte[Cipher.getInstance(ENCRYPTION).getBlockSize()];
+        secureRandom.nextBytes(iv);
+        return iv;
     }
 
      public String wrap(String plaintext, String key)
@@ -110,9 +89,6 @@ public class StringEnvelope {
         byte[] rawEncrypted = Base64.decode(strEncrypted);
         byte[] rawMac = Base64.decode(strMac); // received MAC
         byte[] rawRecvMac; // MAC of received cryptogram
-
-        // check sequence number
-        checkSequence(rawIv);
 
         // derive two separate sub-keys for encryption and MAC from the supplied string key
         SecretKeySpec macKeySpec = deriveKey("hmac", key);
