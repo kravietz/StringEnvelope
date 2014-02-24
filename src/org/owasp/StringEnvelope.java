@@ -5,6 +5,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.util.Arrays;
 
@@ -41,7 +42,7 @@ public class StringEnvelope {
     }
 
      public String wrap(String plaintext, String key)
-             throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+             throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
 
          // derive two separate sub-keys for encryption and MAC from the supplied string key
          SecretKeySpec macKeySpec = deriveKey("hmac", key);
@@ -53,7 +54,7 @@ public class StringEnvelope {
          IvParameterSpec ivSpec = new IvParameterSpec(deriveIv());
 
          cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
-         byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes());
+         byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes("UTF8"));
 
          // calculate HMAC over raw encrypted data
          Mac mac = Mac.getInstance(HMAC);
@@ -68,7 +69,7 @@ public class StringEnvelope {
      }
 
     public String unwrap(String envelope, String key)
-            throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+            throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
         if(!envelope.contains("-"))
             throw new IllegalArgumentException("StringEnvelope " + envelope + " should contain -")  ;
 
@@ -110,7 +111,7 @@ public class StringEnvelope {
         cipher.init(Cipher.DECRYPT_MODE, encKeySpec, ivSpec);
         byte[] decrypted = cipher.doFinal(rawEncrypted);
 
-        return decrypted.toString();
+        return new String(decrypted, "UTF8");
 
     }
 }
