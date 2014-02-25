@@ -16,7 +16,7 @@ class Main {
             UnsupportedEncodingException {
 
         final String key = "key";
-        final String plaintext = "plaintext";
+        final String plaintext = "комплекс карательных мер";
 
         StringEnvelope env = new StringEnvelope();
 

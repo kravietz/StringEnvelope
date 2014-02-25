@@ -10,6 +10,12 @@ The `wrap()` methods returns a BASE64 encoded object with integrity and authenti
 
     Mt2sTCX+FbKeIxCRLFHY5A==-hSQPO5vOZgJpo3X/OqrqWGulP905BQlA3Ued9xa0LAo=-LJECPots4J/DX+im2b4wWA==
 
+International scripts are fully supported with UTF-8 encoding:
+
+    wrap("комплекс карательных мер", "key")
+    hwSh9urBMkH5vw09J22l2A==-AA2Pbyyylqpvl7TBvtG+l98FYYr7EooGpZG6k56A2sM=-IsUMNpIcxVO+XxPpK265NUtZQ1N9U9dMvu77Nj9TF9P9f6Mo6Yn4W8q3iZ9p3uKe
+    unwrap(...) = "комплекс карательных мер"
+
 The `unwrap()` method provides decryption with identity and authenticity validation:
 
     String plaintext = env.unwrap(ciphertext, "key");
