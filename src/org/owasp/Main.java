@@ -20,7 +20,7 @@ class Main {
 
         StringEnvelope env = new StringEnvelope();
 
-        env.selfTest();
+        assert env.selfTest();
 
         System.out.println("Plaintext=" + plaintext);
         String wrapped = env.wrap(plaintext, key);
