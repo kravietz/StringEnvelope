@@ -18,10 +18,22 @@ public class StringEnvelope {
     private static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
     private static final SecureRandom secureRandom = new SecureRandom();
 
+    /*
+     Returns parameters of the cryptographic engine currently used by StringEnvelope.
+
+     @return configuration string
+     */
     public static String getInfo() {
         return "Encryption=" + ENCRYPTION + " MAC=" + HMAC + " Key derivation hash=" + HASH;
     }
 
+    /*
+    Time-constant string comparison. Prevents padding oracle attacks.
+
+    @param stringA, string B
+
+    @return boolean
+     */
     private static boolean isEqual(byte[] a, byte[] b) {
         if (a == null || b == null)
             return false;
@@ -37,11 +49,31 @@ public class StringEnvelope {
         return result == 0;
     }
 
-    private static SecretKeySpec deriveKey(String purpose, String key)
-    throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
+    /*
+    Derive encryption key from user-supplied key string and purpose string. The purpose string
+    only use is to ensure different binary keys are used for different purposes.
 
-        // derive Java encryption key from string
-        // the purpose only serves as multiplexer to get different keys for different purpose
+    @param purpose
+        purpose string
+
+    @param key
+        key string
+
+    @return secret key
+        SecretKeySpec structure
+
+    @throws NoSuchAlgorithmException
+        when encryption algorithm configured in StringEnvelope is not available
+
+    @throws NoSuchPaddingException
+        when padding algorithm configured in StringEnvelope is not available
+
+    @throws UnsupportedEncodingException
+        when strings passed to this method are not encoded in valid UTF-8
+     */
+    private static SecretKeySpec deriveKey(String purpose, String key)
+            throws NoSuchAlgorithmException, UnsupportedEncodingException, NoSuchPaddingException {
+
         MessageDigest md = MessageDigest.getInstance(HASH);
 
         md.update(purpose.getBytes("UTF-8"));
