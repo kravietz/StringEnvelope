@@ -32,17 +32,17 @@ public class StringEnvelope {
     private SecretKeySpec deriveKey(String purpose, String key)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
 
-           // derive Java encryption key from string
-           // the purpose only serves as multiplexer to get different keys for different purpose
-           MessageDigest md = MessageDigest.getInstance(HASH);
+        // derive Java encryption key from string
+        // the purpose only serves as multiplexer to get different keys for different purpose
+        MessageDigest md = MessageDigest.getInstance(HASH);
 
         md.update(purpose.getBytes());
-           byte[] hash = md.digest(key.getBytes());
+        byte[] hash = md.digest(key.getBytes());
 
-            SecretKeySpec keySpec = new SecretKeySpec(Arrays.copyOfRange(hash, 0,
-                   Cipher.getInstance(CIPHER).getBlockSize()), CIPHER);
-           return keySpec;
-     }
+        SecretKeySpec keySpec = new SecretKeySpec(Arrays.copyOfRange(hash, 0,
+                Cipher.getInstance(CIPHER).getBlockSize()), CIPHER);
+        return keySpec;
+    }
 
     private byte[] deriveIv()
             throws NoSuchPaddingException, NoSuchAlgorithmException {
@@ -51,37 +51,37 @@ public class StringEnvelope {
         return iv;
     }
 
-     public String wrap(String plaintext, String key)
-             throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+    public String wrap(String plaintext, String key)
+            throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
 
-         // derive two separate sub-keys for encryption and MAC from the supplied string key
-         SecretKeySpec macKeySpec = deriveKey("hmac", key);
-         SecretKeySpec encKeySpec = deriveKey("encryption", key)  ;
+        // derive two separate sub-keys for encryption and MAC from the supplied string key
+        SecretKeySpec macKeySpec = deriveKey("hmac", key);
+        SecretKeySpec encKeySpec = deriveKey("encryption", key);
 
-         // encrypt plaintext
-         Cipher cipher = Cipher.getInstance(ENCRYPTION);
+        // encrypt plaintext
+        Cipher cipher = Cipher.getInstance(ENCRYPTION);
 
-         IvParameterSpec ivSpec = new IvParameterSpec(deriveIv());
+        IvParameterSpec ivSpec = new IvParameterSpec(deriveIv());
 
-         cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
-         byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes());
+        cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
+        byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes());
 
-         // calculate HMAC over raw encrypted data
-         Mac mac = Mac.getInstance(HMAC);
-         mac.init(macKeySpec);
-         byte[] rawHmac = mac.doFinal(rawEncrypted);
+        // calculate HMAC over raw encrypted data
+        Mac mac = Mac.getInstance(HMAC);
+        mac.init(macKeySpec);
+        byte[] rawHmac = mac.doFinal(rawEncrypted);
 
-         String strIv = Base64.encode(ivSpec.getIV());
-         String strMac = Base64.encode(rawHmac);
-         String strEncrypted = Base64.encode(rawEncrypted);
+        String strIv = Base64.encode(ivSpec.getIV());
+        String strMac = Base64.encode(rawHmac);
+        String strEncrypted = Base64.encode(rawEncrypted);
 
-         return strIv + "-" + strMac + "-" + strEncrypted;
-     }
+        return strIv + "-" + strMac + "-" + strEncrypted;
+    }
 
     public String unwrap(String envelope, String key)
             throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
-        if(!envelope.contains("-"))
-            throw new IllegalArgumentException("StringEnvelope " + envelope + " should contain -")  ;
+        if (!envelope.contains("-"))
+            throw new IllegalArgumentException("StringEnvelope " + envelope + " should contain -");
 
         // split into ciphertext and MAC
         String[] parts = envelope.split("-");
@@ -96,7 +96,7 @@ public class StringEnvelope {
 
         // derive two separate sub-keys for encryption and MAC from the supplied string key
         SecretKeySpec macKeySpec = deriveKey("hmac", key);
-        SecretKeySpec encKeySpec = deriveKey("encryption", key)  ;
+        SecretKeySpec encKeySpec = deriveKey("encryption", key);
 
         // validate MAC
         Mac mac = Mac.getInstance(HMAC);
