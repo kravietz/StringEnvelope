@@ -185,71 +185,51 @@ public class StringEnvelope {
                 actual = unwrap(wrap(plaintext, key), key);
             }
 
-            System.out.println("function='" + function + "' input1='" + input1 + "' input2='" + input2 + "' expect='" + expect + "' actual='" + actual + "'");
-
             if (!actual.equals(expect))
                 fails++;
         }
 
         // deriveIv() - each should be unique
-        System.out.print("deriveIv() continuous uniqueness test");
         for (i = 0; i < 10; i++) {
             String buf, newbuf;
-            System.out.print(".");
 
             buf = wrap("plaintext", "key");
             newbuf = wrap("plaintext", "key");
 
             if (buf.equals(newbuf)) {
-                System.out.print("!");
                 fails++;
             }
 
         }
-        System.out.println("");
 
         // wrap() - each should be unique
-        System.out.print("wrap() continuous uniqueness test");
         for (i = 0; i < 10; i++) {
             byte[] buf, newbuf;
-            System.out.print(".");
 
             buf = deriveIv();
             newbuf = deriveIv();
 
             if (buf.equals(newbuf)) {
-                System.out.print("!");
                 fails++;
             }
 
         }
-        System.out.println("");
 
         // unwrap() - continous integrity test
-        System.out.println("unwrap() continuous integrity test");
-        for (i = 0; i < 100; i++) {
+        for (i = 0; i < 200; i++) {
             byte[] ciphertext = wrap("plaintext", "key").getBytes();
             // modify ciphertext at random offset (can be inIV, MAC or ciphertext)
             int index = secureRandom.nextInt(ciphertext.length);
             ciphertext[index] ^= 1;
             try {
                 String hacked = new String(ciphertext, "UTF8");
-                String unwrapped = unwrap(hacked, "key");
+                unwrap(hacked, "key");
                 fails++;
-                System.out.print("!");
-                System.out.println("hacked=" + hacked);
-                System.out.println("unwrapped=" + unwrapped);
             } catch (IllegalArgumentException e) {
-                System.out.print(".");
-            } catch (BadPaddingException e) {
-                System.out.print(".");
             }
-
         }
-        System.out.println("");
 
         // end of tests
-        System.out.println("fails=" + fails);
         return fails == 0;
     }
 }
