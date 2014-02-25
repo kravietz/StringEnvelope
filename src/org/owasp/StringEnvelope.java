@@ -13,10 +13,14 @@ import java.util.Arrays;
 public class StringEnvelope {
 
     private static final String HASH = "SHA-256";
-    private static final String HMAC = "HmacSHA256";
+    private static final String HMAC = "HmacSHA1";
     private static final String CIPHER = "AES";
     private static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
     private static final SecureRandom secureRandom = new SecureRandom();
+
+    public static String getInfo() {
+        return "Encryption=" + ENCRYPTION + " MAC=" + HMAC + " Key derivation hash=" + HASH;
+    }
 
     private static boolean isEqual(byte[] a, byte[] b) {
         if (a == null || b == null)

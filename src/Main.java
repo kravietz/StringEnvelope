@@ -28,5 +28,7 @@ class Main {
         System.out.println("Encrypted=" + wrapped);
 
         System.out.println("Decrypted=" + env.unwrap(wrapped, key));
+
+        System.out.println("Configuration: " + env.getInfo());
     }
 }
