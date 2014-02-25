@@ -6,7 +6,7 @@ Easy to use class providing integrity, authenticity and confidentiality protecti
     StringEnvelope env = new StringEnvelope();
     String ciphertext = env.wrap("plaintext", "key");
 
-The `wrap()` methods returns a BASE64 encrypted object with integrity and authenticity protection embedded. Example:
+The `wrap()` methods returns a BASE64 encoded object with integrity and authenticity protection embedded. Example:
 
     Mt2sTCX+FbKeIxCRLFHY5A==-hSQPO5vOZgJpo3X/OqrqWGulP905BQlA3Ued9xa0LAo=-LJECPots4J/DX+im2b4wWA==
 

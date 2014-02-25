@@ -15,8 +15,8 @@ class Main {
             NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
             UnsupportedEncodingException {
 
-        final String key = "test key 1";
-        final String plaintext = "this is the message";
+        final String key = "key";
+        final String plaintext = "plaintext";
 
         StringEnvelope env = new StringEnvelope();
 
