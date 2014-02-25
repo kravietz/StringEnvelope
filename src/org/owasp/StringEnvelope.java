@@ -19,6 +19,9 @@ public class StringEnvelope {
     private static final SecureRandom secureRandom = new SecureRandom();
 
     private static boolean isEqual(byte[] a, byte[] b) {
+        if (a == null || b == null)
+            return false;
+
         if (a.length != b.length) {
             return false;
         }
@@ -81,18 +84,29 @@ public class StringEnvelope {
     public static String unwrap(String envelope, String key)
     throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
         if (!envelope.contains("-"))
-            throw new IllegalArgumentException("StringEnvelope " + envelope + " should contain -");
+            throw new IllegalArgumentException("Malformed envelope: no dash");
 
         // split into ciphertext and MAC
         String[] parts = envelope.split("-");
+
+        if (parts.length != 3)
+            throw new IllegalArgumentException("Malformed envelope: no three dashes");
+
         String strIv = parts[0];
         String strMac = parts[1];
         String strEncrypted = parts[2];
 
         byte[] rawIv = Base64.decode(strIv);
+        if (rawIv == null)
+            throw new IllegalArgumentException("Malformed IV");
+
         byte[] rawEncrypted = Base64.decode(strEncrypted);
+        if (rawIv == null)
+            throw new IllegalArgumentException("Malformed ciphertext");
+
         byte[] rawMac = Base64.decode(strMac); // received MAC
-        byte[] rawRecvMac; // MAC of received cryptogram
+        if (rawIv == null)
+            throw new IllegalArgumentException("Malformed MAC");
 
         // derive two separate sub-keys for encryption and MAC from the supplied string key
         SecretKeySpec macKeySpec = deriveKey("hmac", key);
@@ -101,6 +115,8 @@ public class StringEnvelope {
         // validate MAC
         Mac mac = Mac.getInstance(HMAC);
         mac.init(macKeySpec);
+
+        byte[] rawRecvMac; // MAC of received cryptogram
         rawRecvMac = mac.doFinal(rawEncrypted);
 
         if (!isEqual(rawMac, rawRecvMac))
@@ -215,12 +231,16 @@ public class StringEnvelope {
             int index = secureRandom.nextInt(ciphertext.length);
             ciphertext[index] ^= 1;
             try {
-                unwrap(new String(ciphertext, "UTF8"), "key");
+                String hacked = new String(ciphertext, "UTF8");
+                String unwrapped = unwrap(hacked, "key");
                 fails++;
+                System.out.print("!");
+                System.out.println("hacked=" + hacked);
+                System.out.println("unwrapped=" + unwrapped);
             } catch (IllegalArgumentException e) {
-                System.out.println(e);
+                System.out.print(".");
             } catch (BadPaddingException e) {
-                System.out.println(e);
+                System.out.print(".");
             }
 
         }
