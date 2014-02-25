@@ -30,14 +30,14 @@ public class StringEnvelope {
     }
 
     private SecretKeySpec deriveKey(String purpose, String key)
-            throws NoSuchAlgorithmException, NoSuchPaddingException {
+            throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
 
         // derive Java encryption key from string
         // the purpose only serves as multiplexer to get different keys for different purpose
         MessageDigest md = MessageDigest.getInstance(HASH);
 
         md.update(purpose.getBytes());
-        byte[] hash = md.digest(key.getBytes());
+        byte[] hash = md.digest(key.getBytes("UTF-8"));
 
         SecretKeySpec keySpec = new SecretKeySpec(Arrays.copyOfRange(hash, 0,
                 Cipher.getInstance(CIPHER).getBlockSize()), CIPHER);
