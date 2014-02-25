@@ -8,7 +8,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class Main {
+class Main {
 
     public static void main(String[] args)
             throws IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException,

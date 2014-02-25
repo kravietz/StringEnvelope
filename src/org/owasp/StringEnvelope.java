@@ -9,13 +9,14 @@ import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.util.Arrays;
 
-public class StringEnvelope {
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+class StringEnvelope {
 
-    static final String HASH = "SHA-256";
-    static final String HMAC = "HmacSHA256";
-    static final String CIPHER = "AES";
-    static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
-    static SecureRandom secureRandom = new SecureRandom();
+    private static final String HASH = "SHA-256";
+    private static final String HMAC = "HmacSHA256";
+    private static final String CIPHER = "AES";
+    private static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
+    private static final SecureRandom secureRandom = new SecureRandom();
 
     private static boolean isEqual(byte[] a, byte[] b) {
         if (a.length != b.length) {
@@ -39,9 +40,8 @@ public class StringEnvelope {
         md.update(purpose.getBytes("UTF-8"));
         byte[] hash = md.digest(key.getBytes("UTF-8"));
 
-        SecretKeySpec keySpec = new SecretKeySpec(Arrays.copyOfRange(hash, 0,
+        return new SecretKeySpec(Arrays.copyOfRange(hash, 0,
                 Cipher.getInstance(CIPHER).getBlockSize()), CIPHER);
-        return keySpec;
     }
 
     private byte[] deriveIv()
