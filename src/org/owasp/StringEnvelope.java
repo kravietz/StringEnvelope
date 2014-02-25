@@ -72,6 +72,7 @@ public class StringEnvelope {
         // calculate HMAC over raw encrypted data
         Mac mac = Mac.getInstance(HMAC);
         mac.init(macKeySpec);
+        mac.update(ivSpec.getIV());
         byte[] rawHmac = mac.doFinal(rawEncrypted);
 
         String strIv = Base64.encode(ivSpec.getIV());
@@ -115,6 +116,7 @@ public class StringEnvelope {
         // validate MAC
         Mac mac = Mac.getInstance(HMAC);
         mac.init(macKeySpec);
+        mac.update(rawIv);
 
         byte[] rawRecvMac; // MAC of received cryptogram
         rawRecvMac = mac.doFinal(rawEncrypted);
