@@ -52,7 +52,7 @@ public class StringEnvelope {
     }
 
     public String wrap(String plaintext, String key)
-            throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+            throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
 
         // derive two separate sub-keys for encryption and MAC from the supplied string key
         SecretKeySpec macKeySpec = deriveKey("hmac", key);
@@ -64,7 +64,7 @@ public class StringEnvelope {
         IvParameterSpec ivSpec = new IvParameterSpec(deriveIv());
 
         cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
-        byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes());
+        byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes("UTF-8"));
 
         // calculate HMAC over raw encrypted data
         Mac mac = Mac.getInstance(HMAC);
