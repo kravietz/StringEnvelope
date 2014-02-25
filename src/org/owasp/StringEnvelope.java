@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class StringEnvelope {
 
     private static final String HASH = "SHA-256";
-    private static final String HMAC = "HmacSHA1";
+    private static final String HMAC = "HmacSHA256";
     private static final String CIPHER = "AES";
     private static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
     private static final SecureRandom secureRandom = new SecureRandom();
@@ -90,6 +90,18 @@ public class StringEnvelope {
         return iv;
     }
 
+    /*
+    Wrap user supplied string in encrypted and authenticated envelope. All strings may be UTF-8 encoded.
+
+    @param plaintext
+        user supplied string
+
+    @param key
+        user supplied secret key
+
+    @return ciphertext
+        BASE64 encoded envelope
+     */
     public static String wrap(String plaintext, String key)
     throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
 
@@ -97,20 +109,25 @@ public class StringEnvelope {
         SecretKeySpec macKeySpec = deriveKey("hmac", key);
         SecretKeySpec encKeySpec = deriveKey("encryption", key);
 
-        // encrypt plaintext
+        // prepare to encrypt plaintext
         Cipher cipher = Cipher.getInstance(ENCRYPTION);
-
+        // generate random IV
         IvParameterSpec ivSpec = new IvParameterSpec(deriveIv());
-
+        // initialize cipher with the encryption key and IV
         cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
+        // actually encrypt
         byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes("UTF-8"));
 
-        // calculate HMAC over raw encrypted data
+        // calculate HMAC over raw encrypted data and IV
         Mac mac = Mac.getInstance(HMAC);
+        // use the MAC key (separate from encryption key)
         mac.init(macKeySpec);
+        // calculate MAC over IV
         mac.update(ivSpec.getIV());
+        // calculate MAC over ciphertext
         byte[] rawHmac = mac.doFinal(rawEncrypted);
 
+        // BASE64 encode everything
         String strIv = Base64.encode(ivSpec.getIV());
         String strMac = Base64.encode(rawHmac);
         String strEncrypted = Base64.encode(rawEncrypted);
@@ -118,8 +135,22 @@ public class StringEnvelope {
         return strIv + "-" + strMac + "-" + strEncrypted;
     }
 
+    /*
+    Unwrap the encrypted and authenticated envelope, failing if the envelope was tampered with.
+
+    @param envelope
+        BASE64 encrypted envelope
+
+    @param key
+        decryption key
+
+    @return string
+        decrypted plaintext
+     */
     public static String unwrap(String envelope, String key)
-    throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
+            throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException,
+            IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException
+     {
         if (!envelope.contains("-"))
             throw new IllegalArgumentException("Malformed envelope: no dash");
 
@@ -186,6 +217,12 @@ public class StringEnvelope {
             {"unwrap", "Poćmękłanobzdrężyłłopaćpolerta", "комплекс карательных мер, проводившихся большевиками в ходе Гражданской войны", "plaintext"},
     };
 
+    /*
+    Perform basic self-tests on the cryptographic engine.
+
+    @return boolean
+        should be always true, do not use if false
+     */
     public static boolean selfTest()
             throws NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
         int fails = 0;
