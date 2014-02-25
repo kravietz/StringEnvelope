@@ -15,10 +15,12 @@ class Main {
             NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
             UnsupportedEncodingException {
 
-        final String key = "this is key";
+        final String key = "test key 1";
         final String plaintext = "this is the message";
 
         StringEnvelope env = new StringEnvelope();
+
+        env.selfTest();
 
         System.out.println("Plaintext=" + plaintext);
         String wrapped = env.wrap(plaintext, key);
