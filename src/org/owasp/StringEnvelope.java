@@ -36,7 +36,7 @@ public class StringEnvelope {
         // the purpose only serves as multiplexer to get different keys for different purpose
         MessageDigest md = MessageDigest.getInstance(HASH);
 
-        md.update(purpose.getBytes());
+        md.update(purpose.getBytes("UTF-8"));
         byte[] hash = md.digest(key.getBytes("UTF-8"));
 
         SecretKeySpec keySpec = new SecretKeySpec(Arrays.copyOfRange(hash, 0,
