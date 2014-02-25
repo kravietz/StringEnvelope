@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="StringEnvelope:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/StringEnvelope_jar</output-path>
+    <root id="archive" name="StringEnvelope.jar">
+      <element id="module-output" name="StringEnvelope" />
+    </root>
+  </artifact>
+</component>
