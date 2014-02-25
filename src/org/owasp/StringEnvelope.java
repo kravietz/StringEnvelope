@@ -9,8 +9,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.util.Arrays;
 
-import static java.lang.Math.min;
-
 public class StringEnvelope {
 
     static final String HASH = "SHA-256";
@@ -18,6 +16,18 @@ public class StringEnvelope {
     static final String CIPHER = "AES";
     static final String ENCRYPTION = CIPHER + "/CBC/PKCS5Padding";
     static SecureRandom secureRandom = new SecureRandom();
+
+    private static boolean isEqual(byte[] a, byte[] b) {
+        if (a.length != b.length) {
+            return false;
+        }
+
+        int result = 0;
+        for (int i = 0; i < a.length; i++) {
+            result |= a[i] ^ b[i]
+        }
+        return result == 0;
+    }
 
     private SecretKeySpec deriveKey(String purpose, String key)
             throws NoSuchAlgorithmException, NoSuchPaddingException {
@@ -42,7 +52,7 @@ public class StringEnvelope {
     }
 
      public String wrap(String plaintext, String key)
-             throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
+             throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
 
          // derive two separate sub-keys for encryption and MAC from the supplied string key
          SecretKeySpec macKeySpec = deriveKey("hmac", key);
@@ -54,7 +64,7 @@ public class StringEnvelope {
          IvParameterSpec ivSpec = new IvParameterSpec(deriveIv());
 
          cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
-         byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes("UTF8"));
+         byte[] rawEncrypted = cipher.doFinal(plaintext.getBytes());
 
          // calculate HMAC over raw encrypted data
          Mac mac = Mac.getInstance(HMAC);
@@ -93,16 +103,7 @@ public class StringEnvelope {
         mac.init(macKeySpec);
         rawRecvMac = mac.doFinal(rawEncrypted);
 
-        // constant-time compare of MACs
-        boolean macsEqual = false;
-        for(int i=0; i<min(rawRecvMac.length, rawMac.length); i++) {
-             if(rawRecvMac[i] == rawMac[i])
-                 macsEqual = true;
-            else
-                 macsEqual = false;
-        }
-
-        if(!macsEqual)
+        if (!isEqual(rawMac, rawRecvMac))
             throw new IllegalArgumentException("Encrypted data MAC does not match");
 
         // decrypt authentic data
