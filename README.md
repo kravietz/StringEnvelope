@@ -20,17 +20,19 @@ The `unwrap()` method provides decryption with identity and authenticity validat
 
     String plaintext = env.unwrap(ciphertext, "key");
 
-On integrity error an exception will be thrown, so `try/catch` should be used:
+On integrity error an exception will be thrown, so `try/catch` should be used. Details on why decryption
+failed are returned in the exception, but it's usually because the encrypted block was modified or malformed:
 
     try {
         String plaintext = env.unwrap(ciphertext, "key");
     catch (IllegalArgumentException e) {
-        // handle the error
+        System.out.println("Decryption failed: " + e);
     }
 
 The class also has a built-in self-test method that returns `true` if the implementation works as expected.
 
-    assert env.selfTest();
+    if (!env.selfTest())
+            throw new InternalError("self test failed");
 
 The self-test should be normally called when the class is initialised so that possible buggy or old Java
 implementations can be detected before they impair the encryption.
