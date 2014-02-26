@@ -202,6 +202,11 @@ public class StringEnvelope {
     }
 
     private static final String[][] testVectors = {
+            // JCE - algo, iv, plaintext, expected result (key is fixed)
+            {"AES/CBC/PKCS5Padding", "0123456789abcdef", "plaintext", "yDNCsm8mWNJlNWB50MMIAg=="},
+            {"AES/CBC/PKCS5Padding", "aaaaaaaaaaaaaaaa", "plaintext", "uoG/KJF8TXOzVvNL/Yh2Sg=="},
+            {"AES/CBC/PKCS5Padding", "0000000000000000", "комплекс карательных мер, проводившихся большевиками в ходе Гражданской войны", "MWHOOU/fqy4ds9iMskJbKyZU6EsNweJlMh1roZz6jHFtTaoMYeS5tw13o9fAWvCF+MmVIxMuoHJqOw7YYrG13iEsI6aK5ziUbpn6530ei2DYefyWr4meWDy5Be36sq6JVEfPO+jm+XFhLgl4pLHTCN1T5HZZFLfFyG/y/GCxYR9878quZo3CrvxE9aQVmRcQX98S1iCUTgGlsIXjxydeyQ=="},
+            // deriveKey() should return deterministic results
             {"deriveKey", "test key 1", "", "QtzGfMLFHf+iAbNAq0iAuQ=="},
             {"deriveKey", "test key 2", "", "Uc10OVlLnyx/q15eyQL64w=="},
             {"deriveKey", "test key ąćęłńóśżź", "", "JTfvXe9hs1ER+VdLN8cMcQ=="},
@@ -237,6 +242,23 @@ public class StringEnvelope {
             String expect = vector[3];
             String actual = "";
 
+            if (function.equals("AES/CBC/PKCS5Padding")) {
+                byte[] rawIv = input1.getBytes();
+                byte[] rawPlaintext = input2.getBytes();
+                byte[] rawKey = "0123456789abcdef".getBytes();
+
+                // prepare  key and IV
+                SecretKeySpec encKeySpec = new SecretKeySpec(rawKey, "AES");
+                IvParameterSpec ivSpec = new IvParameterSpec(rawIv);
+
+                // init cipher
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipher.init(Cipher.ENCRYPT_MODE, encKeySpec, ivSpec);
+                // encrypt
+                byte[] ciphertext = cipher.doFinal(rawPlaintext);
+                actual = Base64.encode(ciphertext);
+
+            }
             if (function.equals("deriveKey")) {
                 final String purpose = "self test";
                 SecretKeySpec secretKeySpec = deriveKey(purpose, input1);
@@ -258,6 +280,7 @@ public class StringEnvelope {
                 actual = unwrap(wrap(plaintext, key), key);
             }
 
+            // check if  result was what was expected
             if (!actual.equals(expect))
                 fails++;
         }
