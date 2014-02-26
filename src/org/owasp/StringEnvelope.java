@@ -203,6 +203,7 @@ public class StringEnvelope {
 
     private static final String[][] testVectors = {
             // JCE - algo, iv, plaintext, expected result (key is fixed)
+            // these vectors were verified against a PyCrypto implementation
             {"AES/CBC/PKCS5Padding", "0123456789abcdef", "plaintext", "yDNCsm8mWNJlNWB50MMIAg=="},
             {"AES/CBC/PKCS5Padding", "aaaaaaaaaaaaaaaa", "plaintext", "uoG/KJF8TXOzVvNL/Yh2Sg=="},
             {"AES/CBC/PKCS5Padding", "0000000000000000", "комплекс карательных мер, проводившихся большевиками в ходе Гражданской войны", "MWHOOU/fqy4ds9iMskJbKyZU6EsNweJlMh1roZz6jHFtTaoMYeS5tw13o9fAWvCF+MmVIxMuoHJqOw7YYrG13iEsI6aK5ziUbpn6530ei2DYefyWr4meWDy5Be36sq6JVEfPO+jm+XFhLgl4pLHTCN1T5HZZFLfFyG/y/GCxYR9878quZo3CrvxE9aQVmRcQX98S1iCUTgGlsIXjxydeyQ=="},
