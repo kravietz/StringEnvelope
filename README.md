@@ -36,3 +36,7 @@ The class also has a built-in self-test method that returns `true` if the implem
 
 The self-test should be normally called when the class is initialised so that possible buggy or old Java
 implementations can be detected before they impair the encryption.
+
+# Integration with Play framework
+
+See [play-crypto](https://github.com/kravietz/play-crypto/) for sample Play framework application using StringEnvelope.
