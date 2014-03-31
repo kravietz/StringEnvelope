@@ -1,6 +1,5 @@
 StringEnvelope
 ==============
-
 Easy to use class providing integrity, authenticity and confidentiality protection for strings in Java. Usage:
 
     StringEnvelope env = new StringEnvelope();
@@ -40,3 +39,6 @@ implementations can be detected before they impair the encryption.
 # Integration with Play framework
 
 See [play-crypto](https://github.com/kravietz/play-crypto/) for sample Play framework application using StringEnvelope.
+
+# References
+* [Session variables encryption in Play framework](http://ipsec.pl/play-framework/2014/session-variables-encryption-play-framework.html)
